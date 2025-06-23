@@ -456,13 +456,14 @@ document.getElementById("finance-search").addEventListener("input", function() {
 </script>
 
 <script>
-  let chartInstance = null;
 let currentType = "";
 let itemParaExcluir = null;
 let itemParaEditar = null;
 
+let chartInstance = null;
 function atualizarGrafico() {
   const chartCanvas = document.getElementById("doughnutChart");
+  if (!chartCanvas) return;
   const ctx = chartCanvas.getContext("2d");
 
   let data = [];
@@ -476,16 +477,15 @@ function atualizarGrafico() {
 
   categorias.forEach((categoria) => {
     const container = document.getElementById(categoria.id);
+    if (!container) return;
     const items = container.querySelectorAll(".result-item");
-
     let totalCategoria = 0;
     items.forEach((item) => {
       const info = item.querySelector(".info").innerText;
       const partes = info.split(" - ");
-      const valor = parseFloat(partes[1].replace("R$", "").trim());
-      totalCategoria += valor;
+      const valor = parseFloat(partes[1].replace("R$", "").replace(",", ".").trim());
+      totalCategoria += isNaN(valor) ? 0 : valor;
     });
-
     if (totalCategoria > 0) {
       labels.push(categoria.label);
       data.push(totalCategoria);
@@ -495,6 +495,7 @@ function atualizarGrafico() {
 
   if (data.length === 0) {
     chartCanvas.style.display = "none";
+    if (chartInstance) chartInstance.destroy();
     return;
   }
 
@@ -2272,7 +2273,9 @@ function carregarFinancas() {
       });
 
       // Atualiza os cards e gráficos
-      updateDashboardCards();
+      // Atualiza os cards e gráficos
+updateDashboardCards();
+atualizarGrafico(); // <- Adicione esta linha!
     });
 }
 carregarFinancas();

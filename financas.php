@@ -13,9 +13,9 @@ header("Content-Type: application/json");
 // --- PAGAR DESPESA ---
 if (($_GET["action"] ?? '') === "pagar_despesa" && $_SERVER["REQUEST_METHOD"] === "POST") {
     $id = intval($_GET["id"] ?? 0);
-    $origem = $_GET["origem"] ?? "total"; // 'banco' ou 'total'
-    $stmt = $mysqli->prepare("UPDATE despesas SET pago=1 WHERE id=? AND usuario_id=?");
-    $stmt->bind_param("ii", $id, $usuario_id);
+    $origem = $_GET["origem"] ?? "total";
+    $stmt = $mysqli->prepare("UPDATE despesas SET pago=1, origem_pagamento=? WHERE id=? AND usuario_id=?");
+    $stmt->bind_param("sii", $origem, $id, $usuario_id);
     $stmt->execute();
     echo json_encode(["success" => true]);
     exit;
@@ -25,8 +25,8 @@ if (($_GET["action"] ?? '') === "pagar_despesa" && $_SERVER["REQUEST_METHOD"] ==
 if (($_GET["action"] ?? '') === "realizar_plano" && $_SERVER["REQUEST_METHOD"] === "POST") {
     $id = intval($_GET["id"] ?? 0);
     $origem = $_GET["origem"] ?? "total";
-    $stmt = $mysqli->prepare("UPDATE planos SET realizado=1 WHERE id=? AND usuario_id=?");
-    $stmt->bind_param("ii", $id, $usuario_id);
+    $stmt = $mysqli->prepare("UPDATE planos SET realizado=1, origem_pagamento=? WHERE id=? AND usuario_id=?");
+    $stmt->bind_param("sii", $origem, $id, $usuario_id);
     $stmt->execute();
     echo json_encode(["success" => true]);
     exit;
@@ -126,13 +126,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST["action"] ?? '') === "get")
     $res = $stmt->get_result();
     echo json_encode($res->fetch_assoc());
   } elseif ($tipo === "despesa") {
-    $stmt = $mysqli->prepare("SELECT id, descricao, valor, pago FROM despesas WHERE id=? AND usuario_id=?");
+    $stmt = $mysqli->prepare("SELECT id, descricao, valor, pago, origem_pagamento FROM despesas WHERE id=? AND usuario_id=?");
     $stmt->bind_param("ii", $id, $usuario_id);
     $stmt->execute();
     $res = $stmt->get_result();
     echo json_encode($res->fetch_assoc());
   } elseif ($tipo === "plano") {
-    $stmt = $mysqli->prepare("SELECT id, descricao, valor, prazo, realizado FROM planos WHERE id=? AND usuario_id=?");
+    $stmt = $mysqli->prepare("SELECT id, descricao, valor, prazo, realizado, origem_pagamento FROM planos WHERE id=? AND usuario_id=?");
     $stmt->bind_param("ii", $id, $usuario_id);
     $stmt->execute();
     $res = $stmt->get_result();
@@ -149,10 +149,10 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
   $res = $mysqli->query("SELECT id, descricao, valor FROM receitas WHERE usuario_id=$usuario_id ORDER BY data DESC");
   $dados["receitas"] = [];
   while($row = $res->fetch_assoc()) $dados["receitas"][] = $row;
-  $res = $mysqli->query("SELECT id, descricao, valor, pago FROM despesas WHERE usuario_id=$usuario_id ORDER BY data DESC");
+  $res = $mysqli->query("SELECT id, descricao, valor, pago, origem_pagamento FROM despesas WHERE usuario_id=$usuario_id ORDER BY data DESC");
   $dados["despesas"] = [];
   while($row = $res->fetch_assoc()) $dados["despesas"][] = $row;
-  $res = $mysqli->query("SELECT id, descricao, valor, prazo, realizado FROM planos WHERE usuario_id=$usuario_id ORDER BY data DESC");
+  $res = $mysqli->query("SELECT id, descricao, valor, prazo, realizado, origem_pagamento FROM planos WHERE usuario_id=$usuario_id ORDER BY data DESC");
   $dados["planos"] = [];
   while($row = $res->fetch_assoc()) $dados["planos"][] = $row;
   echo json_encode($dados); exit;

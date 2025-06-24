@@ -537,7 +537,10 @@ function editarCartao(id) {
 
 // Ao abrir o modal de cartão, limpa ou preenche se edição
 document.getElementById("addCardModal").addEventListener("show.bs.modal", function () {
-  if (!windowIsEditingCard) {
+  if (windowIsEditingCard) {
+    document.getElementById("addCardModalLabel").textContent = "Editar Cartão";
+    // O preenchimento já é feito na função editarCartao()
+  } else {
     document.getElementById("addCardForm").reset();
     document.getElementById("cartaoId").value = "";
     document.getElementById("addCardModalLabel").textContent = "Adicionar Novo Cartão";

@@ -96,6 +96,7 @@ CREATE TABLE IF NOT EXISTS receitas (
   valor DECIMAL(10,2) NOT NULL,
   cartao_id INT NULL,
   cartao_numero VARCHAR(24) NULL,
+  excluido TINYINT(1) DEFAULT 0,
   data DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -109,6 +110,7 @@ CREATE TABLE IF NOT EXISTS despesas (
   pago TINYINT DEFAULT 0,
   cartao_id INT NULL,
   cartao_numero VARCHAR(24) NULL,
+  excluido TINYINT(1) DEFAULT 0,
   origem_pagamento VARCHAR(10) DEFAULT NULL,  -- <== NOVO CAMPO
   data DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
@@ -124,6 +126,7 @@ CREATE TABLE IF NOT EXISTS planos (
   realizado TINYINT DEFAULT 0,
   cartao_id INT NULL,
   cartao_numero VARCHAR(24) NULL,
+  excluido TINYINT(1) DEFAULT 0,
   origem_pagamento VARCHAR(10) DEFAULT NULL,  -- <== NOVO CAMPO
   data DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE

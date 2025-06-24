@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>GreenCash - Plataforma de controle financeiro</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --main-yellow: #16d463;
+      --main-yellow-dark: #01ac45;
+      --main-bg: #1a3513;
+      --main-text: #222;
+      --shadow-dark: #16140b;
+      --shadow-yellow: #0c331c;
+      --gray: #7e7e7e;
+      --border-radius-lg: 24px;
+      --header-shadow: 0 3px 8px rgba(0,0,0,0.04);
+      --main-blue: #00365f;
+      --notif-bg: #f4f6fa;
+      --notif-border: #d1e5f7;
+      --notif-text: #4e6484;
+      --notif-icon-bg: #e2eefb;
+      --notif-success-bg: #e7f9ef;
+      --notif-success-border: #b2e8c7;
+      --notif-success-text: #1d6640;
+      --notif-success-icon-bg: #d4f5e3;
+    }
+
+    html, body {
+      background: linear-gradient(120deg, var(--main-yellow-dark) 0%, var(--shadow-yellow) 100%);
+      color: var(--main-text);
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 18px;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      background: #fff;
+      padding: 0.7rem 0;
+      box-shadow: var(--header-shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      transition: box-shadow 0.2s, background 0.2s;
+      border-bottom: 3px solid var(--main-yellow);
+    }
+    .navbar.scrolled {
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      background: #fff;
+    }
+    .navbar-brand {
+      font-weight: bold;
+      color: var(--main-yellow-dark) !important;
+      font-size: 2rem;
+      letter-spacing: -2px;
+    }
+    .nav-link {
+      color: var(--main-yellow-dark) !important;
+      margin-left: 2rem;
+      font-weight: 500;
+      font-size: 1.05rem;
+      transition: color .2s;
+    }
+    .nav-link:hover, .nav-link.active {
+      color: var(--main-yellow) !important;
+      text-decoration: underline;
+    }
+    .btn-main {
+      background: var(--main-yellow);
+      color: #fff;
+      font-weight: bold;
+      font-size: 1.05rem;
+      border-radius: 20px;
+      padding: 8px 28px;
+      border: none;
+      transition: background .2s;
+      box-shadow: 0 1px 12px rgba(212,161,7,0.04);
+    }
+    .btn-main:hover, .btn-main:focus {
+      background: var(--main-yellow-dark);
+      color: #fff;
+    }
+    /* HERO */
+    .hero-section {
+      background: #fff;
+      padding: 70px 0 40px 0;
+      text-align: center;
+      box-shadow: 0 6px 32px 0 var(--shadow-dark);
+    }
+    .hero-title {
+      font-size: 2.9rem;
+      font-weight: 700;
+      color: var(--main-yellow-dark);
+      margin-bottom: 18px;
+      letter-spacing: -1px;
+      text-shadow: 0 2px 8px #f3e47c33;
+    }
+    .hero-lead {
+      color: var(--gray);
+      font-size: 1.25rem;
+      font-weight: 400;
+      margin-bottom: 40px;
+      max-width: 680px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* BENEFITS GRID */
+    .benefits-section {
+      background: rgba(255,255,255,0.92);
+      padding: 40px 0 90px 0;
+      box-shadow: 0 0 32px 0 var(--shadow-yellow);
+    }
+    .section-title {
+      color: var(--main-yellow-dark);
+      font-weight: 700;
+      font-size: 2.1rem;
+      margin-bottom: 12px;
+      text-align: center;
+      text-shadow: 0 3px 10px #efe3b8ab;
+    }
+    .section-sub {
+      color: var(--gray);
+      font-size: 1.08rem;
+      margin-bottom: 44px;
+      text-align: center;
+    }
+    .benefit-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 54px 42px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .benefit-item {
+      background: #fff;
+      border-radius: var(--border-radius-lg);
+      padding: 32px 18px 28px 18px;
+      box-shadow: 0 2px 16px rgba(212,161,7,0.07);
+      min-height: 310px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      transition: box-shadow .2s, transform .2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .benefit-item:hover {
+      box-shadow: 0 10px 38px rgba(212,161,7,0.17);
+      transform: translateY(-4px) scale(1.02);
+    }
+    .benefit-icon {
+      width: 62px; height: 62px;
+      margin-bottom: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem;
+      color: var(--main-yellow-dark);
+      background: #fffbe7;
+      border-radius: 16px;
+      box-shadow: 0 1px 6px rgba(212,161,7,0.07);
+    }
+    .benefit-title {
+      font-weight: 700;
+      color: var(--main-yellow-dark);
+      font-size: 1.11rem;
+      margin-bottom: 7px;
+      margin-top: 0;
+    }
+    .benefit-desc {
+      color: var(--gray);
+      font-size: 1.03rem;
+      line-height: 1.55;
+      margin-bottom: 0;
+    }
+    .benefit-cta {
+      margin: 44px auto 0 auto;
+      display: flex;
+      justify-content: center;
+    }
+    /* Novo botão transparente com borda amarela escura */
+    .btn-outline-yellow {
+      background: transparent;
+      border: 2px solid var(--main-yellow-dark);
+      color: var(--main-yellow-dark);
+      border-radius: 999px;
+      padding: 5px 32px;
+      font-size: 1.02rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+      box-shadow: none;
+      outline: none !important;
+      margin: 0 auto;
+      display: inline-block;
+    }
+    .btn-outline-yellow:hover, .btn-outline-yellow:focus {
+      background: var(--main-yellow-dark);
+      color: #fff;
+      box-shadow: 0 4px 18px 0 var(--main-yellow-dark);
+    }
+    /* NEWSLETTER SECTION */
+    .newsletter-section {
+      background: linear-gradient(90deg, #222 0%, var(--main-yellow-dark) 100%);
+      color: #fff;
+      padding: 60px 0 56px 0;
+      text-align: center;
+      margin: 0;
+      box-shadow: 0 0 32px 0 var(--shadow-dark);
+    }
+    .newsletter-title {
+      font-size: 1.65rem;
+      font-weight: bold;
+      margin-bottom: 7px;
+    }
+    .newsletter-sub {
+      color: #eee;
+      font-size: 1.09rem;
+      margin-bottom: 32px;
+    }
+    .newsletter-form {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      max-width: 420px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 26px;
+      box-shadow: 0 3px 16px rgba(34,28,6,0.10);
+      padding: 4px 8px;
+    }
+    .newsletter-form input[type="email"] {
+      border: none;
+      background: none;
+      outline: none;
+      padding: 12px 18px;
+      font-size: 1.08rem;
+      flex: 1;
+      border-radius: 20px;
+      color: #222;
+    }
+    .newsletter-form button {
+      background: var(--main-yellow-dark);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 22px;
+      font-weight: bold;
+      font-size: 1.04rem;
+      margin-left: 8px;
+      transition: background .18s;
+      box-shadow: 0 3px 12px #00000012;
+    }
+    .newsletter-form button:hover {
+      background: var(--main-yellow);
+      color: #fff;
+    }
+    /* SAIBA MAIS ABA */
+    .saibamais-section {
+      background: #fffde6;
+      padding: 65px 0 70px 0;
+      min-height: 180px;
+      text-align: center;
+      box-shadow: 0 0 32px 0 var(--shadow-yellow);
+    }
+    .saibamais-title {
+      color: var(--main-yellow-dark);
+      font-size: 1.55rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-shadow: 0 1px 8px #f3e47c33;
+    }
+    .saibamais-desc {
+      color: var(--gray);
+      font-size: 1.10rem;
+      max-width: 650px;
+      margin: 0 auto;
+    }
+    /* SUPORTE FORMULARIO */
+    .suporte-section {
+      background: #fffde6;
+      padding: 80px 0 90px 0;
+      text-align: center;
+      min-height: 390px;
+      box-shadow: 0 0 32px 0 var(--shadow-yellow);
+    }
+    .suporte-title {
+      color: var(--main-yellow-dark);
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-shadow: 0 1px 8px #f3e47c33;
+    }
+    .suporte-sub {
+      color: var(--gray);
+      margin-bottom: 38px;
+      font-size: 1.07rem;
+    }
+    .suporte-form {
+      max-width: 430px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 22px;
+      box-shadow: 0 3px 22px rgba(34,28,6,0.10);
+      padding: 32px 28px 24px 28px;
+      text-align: left;
+    }
+    .suporte-form label {
+      font-weight: 500;
+      color: var(--main-yellow-dark);
+      margin-bottom: 5px;
+      display: block;
+    }
+    .suporte-form input,
+    .suporte-form textarea {
+      width: 100%;
+      padding: 10px 15px;
+      margin-bottom: 18px;
+      border: 1px solid #e5d8b0;
+      border-radius: 12px;
+      background: #fffefa;
+      color: #222;
+      font-size: 1.08rem;
+    }
+    .suporte-form textarea { min-height: 80px; }
+    .suporte-form button {
+      background: var(--main-yellow-dark);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 26px;
+      font-size: 1.08rem;
+      font-weight: bold;
+      transition: background .18s;
+    }
+    .suporte-form button:hover {
+      background: var(--main-yellow);
+    }
+    /* Suporte Notificação Clean */
+    .suporte-notificacao {
+      display: none;
+      position: fixed;
+      top: 40px;
+      left: 0;
+      right: 0;
+      z-index: 2000;
+      max-width: 370px;
+      margin: 0 auto;
+      padding: 17px 22px 15px 18px;
+      background: var(--notif-bg);
+      color: var(--notif-text);
+      border-radius: 14px;
+      border: 1.5px solid var(--notif-border);
+      box-shadow: 0 4px 32px #cbeafc3c;
+      font-size: 1.02rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .5s cubic-bezier(.4,0,.2,1), transform .5s cubic-bezier(.4,0,.2,1);
+      transform: translateY(-30px);
+    }
+    .suporte-notificacao.show {
+      display: flex;
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(0);
+    }
+    .suporte-notificacao__icon {
+      flex-shrink: 0;
+      width: 30px;
+      height: 30px;
+      background: var(--notif-icon-bg);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .suporte-notificacao__close {
+      background: none;
+      border: none;
+      color: var(--notif-text);
+      font-size: 1.3em;
+      cursor: pointer;
+      margin-left: 8px;
+      padding: 3px 7px;
+      border-radius: 50%;
+      transition: background .2s;
+      align-self: flex-start;
+    }
+    .suporte-notificacao__close:hover {
+      background: #e3eaf4;
+    }
+    /* Suporte Notificação Sucesso */
+    .suporte-notificacao.success {
+      background: var(--notif-success-bg);
+      color: var(--notif-success-text);
+      border: 1.5px solid var(--notif-success-border);
+      box-shadow: 0 4px 32px #b2e8c73c;
+    }
+    .suporte-notificacao.success .suporte-notificacao__icon {
+      background: var(--notif-success-icon-bg);
+    }
+    @media (max-width: 480px) {
+      .suporte-notificacao {
+        max-width: 92vw;
+        left: 4vw; right: 4vw;
+        padding: 11px 8px;
+        font-size: .97rem;
+      }
+    }
+
+    /* FEEDBACKS */
+    .feedback-section {
+      background: #fff;
+      padding: 80px 0 120px 0;
+      box-shadow: 0 0 32px 0 var(--shadow-yellow);
+    }
+    .feedback-title {
+      color: var(--main-yellow-dark);
+      font-size: 2rem;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 16px;
+      text-shadow: 0 1px 8px #f3e47c33;
+    }
+    .feedback-sub {
+      color: var(--gray);
+      text-align: center;
+      margin-bottom: 45px;
+      font-size: 1.07rem;
+    }
+    .feedback-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 34px 24px;
+      justify-content: center;
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+    .feedback-card {
+      background: #fffde6;
+      border-radius: 16px;
+      box-shadow: 0 2px 24px #ad880322;
+      padding: 32px 25px 20px 25px;
+      min-width: 280px;
+      max-width: 370px;
+      flex: 1 1 300px;
+      margin-bottom: 15px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .feedback-stars {
+      color: var(--main-yellow-dark);
+      margin-bottom: 9px;
+      font-size: 1.2rem;
+    }
+    .feedback-author {
+      font-weight: 700;
+      color: var(--main-yellow-dark);
+      margin-top: 13px;
+      font-size: 1.05rem;
+    }
+    .feedback-text {
+      color: var(--gray);
+      font-size: 1.02rem;
+      text-align: center;
+    }
+
+    /* Plans Section Custom */
+    @media (max-width: 991px) {
+      .plans-grid { flex-direction: column !important; gap: 24px 0 !important; }
+      .plan-card { max-width: 100% !important; }
+    }
+    @media (max-width: 600px) {
+      .plan-card { padding: 18px 7px 13px 7px !important; }
+      #planoNotificacao { font-size: .93rem !important; padding: 10px 5px 9px 5px !important;}
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 991px) {
+      .navbar-brand { font-size: 1.45rem; }
+      .nav-link { margin-left: 1rem; }
+      .hero-title { font-size: 2.1rem; }
+      .section-title { font-size: 1.30rem; }
+      .benefit-grid { gap: 38px 0; }
+      .feedback-cards { gap: 18px 0;}
+    }
+    @media (max-width: 768px) {
+      .hero-section { padding: 44px 0 22px 0; }
+      .benefits-section, .suporte-section, .feedback-section { padding: 22px 0 36px 0; }
+      .benefit-grid { gap: 24px 0; }
+      .benefit-item { min-height: 0; }
+      .newsletter-section { padding: 30px 0 30px 0; }
+      .feedback-cards { flex-direction: column; align-items: center;}
+    }
+    /* Footer */
+    footer {
+      background: #fff;
+      color: var(--main-yellow-dark);
+      font-size: 1rem;
+      padding: 42px 0 18px 0;
+      text-align: center;
+      border-top: 1.5px solid #f0f0f0;
+      margin-top: 30px;
+    }
+    .footer-social a {
+      color: var(--main-yellow-dark);
+      margin: 0 12px;
+      font-size: 1.3rem;
+      transition: color 0.2s;
+    }
+    .footer-social a:hover { color: #222; }
+
+    /* Scroll effect */
+    .fade-in-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity .8s, transform .8s;
+    }
+    .fade-in-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <!-- Header/Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container">
+      <a class="navbar-brand" href="#">greencash</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto align-items-center">
+          <li class="nav-item"><a class="nav-link" href="#recursos">Recursos</a></li>
+          <li class="nav-item"><a class="nav-link" href="#planos">Planos</a></li>
+          <li class="nav-item ml-2">
+            <a href="login.php" class="btn btn-main">Acessar</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <h1 class="hero-title animate__animated animate__fadeInUp">A melhor plataforma para controle financeiro</h1>
+      <div class="hero-lead animate__animated animate__fadeInUp animate__delay-1s">
+        Proporcione produtividade, praticidade e segurança ao seu controle financeiro.<br>
+        Tenha visão completa das suas movimentações e tome as melhores decisões para a sua empresa ou vida pessoal.
+      </div>
+      <button class="btn-outline-yellow animate__animated animate__fadeInUp animate__delay-2s" id="btnSaibaMais">Saiba mais</button>
+    </div>
+  </section>
+
+  <!-- SAIBA MAIS SECTION APÓS HERO E ANTES DE RECURSOS -->
+  <section class="saibamais-section" id="saibamais">
+    <div class="container">
+      <div class="saibamais-title">Sobre a GreenCash</div>
+      <div class="saibamais-desc">
+        Há anos nossa equipe entrega uma ferramenta robusta para o controle financeiro, evoluindo constantemente a plataforma com base nos pedidos dos clientes. 
+        Ouvimos sugestões de melhoria e implementamos rapidamente, garantindo uma experiência moderna, estável e intuitiva.<br><br>
+        A possibilidade de bugs é mínima, pois nossa equipe de programadores testa o sistema diariamente, garantindo máxima segurança e performance para sua empresa.
+      </div>
+    </div>
+  </section>
+
+  <!-- BENEFITS GRID (recursos) -->
+  <section class="benefits-section" id="recursos">
+    <div class="container">
+      <h2 class="section-title">Conheça todos os recursos</h2>
+      <div class="section-sub">Tudo o que sua empresa precisa para controlar, antecipar e auditar suas finanças.</div>
+      <div class="benefit-grid">
+        <div class="benefit-item fade-in-up">
+          <div class="benefit-icon"><i class="fas fa-chart-bar"></i></div>
+          <div class="benefit-title">Simulação de antecipações</div>
+          <div class="benefit-desc">Simule antecipações de recebíveis direto na plataforma e visualize o impacto financeiro antes de efetivar a operação.</div>
+        </div>
+        <div class="benefit-item fade-in-up">
+          <div class="benefit-icon"><i class="fas fa-university"></i></div>
+          <div class="benefit-title">Automação e inteligência de dados</div>
+          <div class="benefit-desc">
+            Baixa automática de recebíveis integrada aos principais ERPs do mercado.<br>
+            Descubra taxas cobradas e emita relatórios personalizados facilmente.
+          </div>
+        </div>
+        <div class="benefit-item fade-in-up">
+          <div class="benefit-icon"><i class="fas fa-credit-card"></i></div>
+          <div class="benefit-title">Gestão de cancelamentos e chargebacks</div>
+          <div class="benefit-desc">Controle completo para cancelamentos e chargebacks em e-commerces, facilitando auditoria e gestão de risco.</div>
+        </div>
+        <div class="benefit-item fade-in-up">
+          <div class="benefit-icon"><i class="fas fa-plug"></i></div>
+          <div class="benefit-title">Integração com sistemas de gestão</div>
+          <div class="benefit-desc">Conexão direta com os principais sistemas de automação e ERPs do mercado para automação de dados e relatórios.</div>
+        </div>
+        <div class="benefit-item fade-in-up">
+          <div class="benefit-icon"><i class="fas fa-file-contract"></i></div>
+          <div class="benefit-title">Auditoria de contratos</div>
+          <div class="benefit-desc">Auditoria detalhada de contratos de taxas praticadas com adquirentes, garantindo transparência e economia.</div>
+        </div>
+        <div class="benefit-item fade-in-up">
+          <div class="benefit-icon"><i class="fas fa-eye"></i></div>
+          <div class="benefit-title">Visão detalhada das movimentações</div>
+          <div class="benefit-desc">Visualize informações amplas e específicas de toda movimentação financeira da sua empresa em tempo real.</div>
+        </div>
+      </div>
+      <div class="benefit-cta">
+        <a href="recursos.html" class="btn-outline-yellow mt-4">Ver todos os recursos</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLANOS CARDS MINIMALISTA -->
+  <section class="plans-section" id="planos" style="background: #fffde6; padding: 64px 0 80px 0; box-shadow: 0 0 32px 0 var(--shadow-yellow);">
+    <div class="container">
+      <h2 class="section-title" style="margin-bottom: 6px;">Planos para todos os perfis</h2>
+      <div class="section-sub" style="margin-bottom: 40px;">Escolha o ideal para sua empresa ou uso pessoal.</div>
+      <div class="plans-grid" style="display: flex; flex-wrap: wrap; gap: 32px 18px; justify-content: center;">
+
+        <!-- Plano Básico -->
+        <div class="plan-card animate__animated animate__fadeInUp" style="flex:1 1 260px; max-width:300px; min-width:220px; background: #fff; border-radius: 16px; box-shadow: 0 2px 16px #d4a10725; padding: 32px 20px 28px 20px; display: flex; flex-direction: column; align-items: center; border: 1px solid #f6eab6; position:relative;">
+          <div style="font-weight: 600; color: var(--main-yellow-dark); font-size: 1.13rem; margin-bottom: 2px;">Básico</div>
+          <div style="font-size: 1.7rem; font-weight: 900; color: #fff; background: linear-gradient(95deg, var(--main-yellow-dark) 60%, var(--main-yellow)); padding: 4px 16px; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 2px 18px #d4a10740;">
+            GRATUITO
+          </div>
+          <div style="font-size: .94rem; color: var(--main-yellow-dark); font-weight: 500; margin-bottom: 13px; letter-spacing: .2px; background: #fffbe7; border-radius: 8px; padding: 3px 10px;">
+            Plano limitado
+          </div>
+          <ul style="list-style: none; padding: 0; margin: 0 0 16px 0; color: var(--gray); font-size: .99rem; text-align: left;">
+            <li>• Recursos principais</li>
+            <li>• Relatórios ilimitados</li>
+            <li>• Integração básica ERP</li>
+            <li style="color:#cdbe91;">• Sem suporte prioritário</li>
+            <li style="color:#cdbe91;">• Sem canal exclusivo</li>
+            <li style="color:#cdbe91;">• Sem grupo VIP</li>
+          </ul>
+        </div>
+
+        <!-- Plano Intermediário -->
+        <div class="plan-card animate__animated animate__fadeInUp animate__delay-1s" style="flex:1 1 260px; max-width:300px; min-width:220px; background: #fff; border-radius: 16px; box-shadow: 0 2px 16px #d4a10725; padding: 32px 20px 28px 20px; display: flex; flex-direction: column; align-items: center; border: 1px solid #f6eab6; position:relative;">
+          <div style="font-weight: 600; color: var(--main-yellow-dark); font-size: 1.13rem; margin-bottom: 2px;">Intermediário</div>
+          <div style="font-size: 1.7rem; font-weight: 900; color: var(--main-yellow-dark); background: linear-gradient(95deg, #fffde6 40%, var(--main-yellow) 100%); padding: 4px 16px; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 2px 18px #d4a10740;">
+            R$ 39,90 <span style="font-size:.93rem; font-weight: 500;">/mês</span>
+          </div>
+          <div style="font-size: .94rem; color: var(--main-yellow-dark); font-weight: 500; margin-bottom: 13px; letter-spacing: .2px; background: #fffbe7; border-radius: 8px; padding: 3px 10px;">
+            Mais popular
+          </div>
+          <ul style="list-style: none; padding: 0; margin: 0 0 16px 0; color: var(--gray); font-size: .99rem; text-align: left;">
+            <li>• Tudo do Básico</li>
+            <li>• Suporte melhorado</li>
+            <li>• Canal exclusivo para sugestões</li>
+            <li>• Prioridade em atualizações</li>
+            <li style="color:#cdbe91;">• Sem grupo VIP</li>
+          </ul>
+        </div>
+
+        <!-- Plano Avançado -->
+        <div class="plan-card animate__animated animate__fadeInUp animate__delay-2s" style="flex:1 1 260px; max-width:300px; min-width:220px; background: #fff; border-radius: 16px; box-shadow: 0 2px 16px #d4a10725; padding: 32px 20px 28px 20px; display: flex; flex-direction: column; align-items: center; border: 1px solid #f6eab6; position:relative;">
+          <div style="font-weight: 600; color: var(--main-yellow-dark); font-size: 1.13rem; margin-bottom: 2px;">Avançado</div>
+          <div style="font-size: 1.7rem; font-weight: 900; color: var(--main-yellow-dark); background: linear-gradient(95deg, #fffde6 40%, var(--main-yellow-dark) 100%); padding: 4px 16px; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 2px 18px #d4a10740;">
+            R$ 69,90 <span style="font-size:.93rem; font-weight: 500;">/mês</span>
+          </div>
+          <div style="font-size: .94rem; color: var(--main-yellow-dark); font-weight: 500; margin-bottom: 13px; letter-spacing: .2px; background: #fffbe7; border-radius: 8px; padding: 3px 10px;">
+            Experiência máxima
+          </div>
+          <ul style="list-style: none; padding: 0; margin: 0 0 16px 0; color: var(--gray); font-size: .99rem; text-align: left;">
+            <li>• Tudo do Intermediário</li>
+            <li>• Suporte 24h</li>
+            <li>• Grupo VIP exclusivo</li>
+            <li>• Acesso antecipado às novidades</li>
+            <li>• Opine nas próximas funções</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Botão Escolha seu plano agora -->
+      <div style="text-align: center; margin-top: 32px;">
+        <button id="btnEscolherPlano" class="btn-main animate__animated animate__pulse animate__delay-2s"
+          style="min-width: 200px; font-size: 1.07rem; border-radius: 20px;">
+          Escolha seu plano agora
+        </button>
+        <!-- Notificação clean de ação (igual suporte, mas neutra) -->
+        <div id="planoNotificacao" class="suporte-notificacao" role="alert" aria-live="polite" style="margin: 22px auto 0 auto;">
+          <span class="suporte-notificacao__icon">
+            <!-- Ícone de informação moderna -->
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <circle cx="11" cy="11" r="11" fill="#e2eefb"/>
+              <text x="11" y="16" text-anchor="middle" font-size="13" fill="#4e6484" font-family="Arial, sans-serif" font-weight="bold">i</text>
+            </svg>
+          </span>
+          <span class="plano-notif-msg">
+            Faça login para escolher um plano personalizado.
+          </span>
+          <button type="button" class="suporte-notificacao__close" aria-label="Fechar notificação" onclick="fecharPlanoNotificacao()">&times;</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER Gradient Section (igual ao da Equals na imagem 2) -->
+  <section class="newsletter-section">
+    <div class="container">
+      <div class="newsletter-title">Saiba das novidades</div>
+      <div class="newsletter-sub">
+        Fique por dentro das tendências e inovações em gestão financeira.<br>
+        Receba conteúdos exclusivos, atualizações e dicas para impulsionar sua empresa.
+      </div>
+      <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Inscrição realizada com sucesso!');">
+        <input type="email" placeholder="Insira seu e-mail" required>
+        <button type="submit">Assinar <i class="fas fa-paper-plane ml-1"></i></button>
+      </form>
+    </div>
+  </section>
+
+  <!-- SUPORTE Section (formulário de suporte) -->
+  <section class="suporte-section" id="suporte">
+    <div class="container">
+      <div class="suporte-title">Precisa de suporte?</div>
+      <div class="suporte-sub">Fale conosco! Nossa equipe está pronta para ajudar você a otimizar sua equipe financeira, automatizar auditorias e conciliações para sua empresa.</div>
+      <form class="suporte-form" onsubmit="event.preventDefault(); mostrarSuporteNotificacao(); this.reset();">
+        <label for="nome">Nome</label>
+        <input type="text" id="nome" name="nome" placeholder="Seu nome" required>
+        <label for="email">E-mail</label>
+        <input type="email" id="email" name="email" placeholder="Seu e-mail" required>
+        <label for="mensagem">Mensagem</label>
+        <textarea id="mensagem" name="mensagem" placeholder="Descreva sua dúvida ou necessidade" required></textarea>
+        <button type="submit">Enviar mensagem</button>
+      </form>
+      <!-- Notificação clean de sucesso -->
+      <div id="suporteNotificacao" class="suporte-notificacao success" role="alert" aria-live="polite">
+        <span class="suporte-notificacao__icon">
+          <!-- Ícone de sucesso moderno -->
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+            <circle cx="11" cy="11" r="11" fill="#d4f5e3"/>
+            <path d="M7 11.5l2.2 2.2 5-5" stroke="#1d6640" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span><b>Mensagem enviada com sucesso!</b> Em breve entraremos em contato.</span>
+        <button type="button" class="suporte-notificacao__close" aria-label="Fechar notificação" onclick="fecharSuporteNotificacao()">&times;</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEEDBACKS Section -->
+  <section class="feedback-section" id="feedbacks">
+    <div class="container">
+      <div class="feedback-title">Feedbacks de quem usa GreenCash</div>
+      <div class="feedback-sub">Veja o que nossos clientes dizem sobre a experiência e resultados obtidos:</div>
+      <div class="feedback-cards">
+        <div class="feedback-card">
+          <div class="feedback-stars">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+          </div>
+          <div class="feedback-text">
+            "Com o GreenCash, finalmente tenho controle total das finanças da minha empresa. Recomendo para todos!"
+          </div>
+          <div class="feedback-author">Lucas F., São Paulo</div>
+        </div>
+        <div class="feedback-card">
+          <div class="feedback-stars">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+          </div>
+          <div class="feedback-text">
+            "A automação de conciliações e relatórios é sensacional. O suporte é rápido e sempre resolve."
+          </div>
+          <div class="feedback-author">Amanda T., Recife</div>
+        </div>
+        <div class="feedback-card">
+          <div class="feedback-stars">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+          </div>
+          <div class="feedback-text">
+            "Economizei horas na gestão financeira e evitei prejuízos com a plataforma. Muito fácil de usar."
+          </div>
+          <div class="feedback-author">Carlos M., Porto Alegre</div>
+        </div>
+        <div class="feedback-card">
+          <div class="feedback-stars">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+          </div>
+          <div class="feedback-text">
+            "A integração com ERPs e bancos facilitou demais minha rotina. Recomendo para empresas de qualquer porte."
+          </div>
+          <div class="feedback-author">Renata S., Belo Horizonte</div>
+        </div>
+        <div class="feedback-card">
+          <div class="feedback-stars">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+          </div>
+          <div class="feedback-text">
+            "GreenCash superou minhas expectativas, principalmente pelo suporte e pelas funcionalidades exclusivas."
+          </div>
+          <div class="feedback-author">Thiago P., Curitiba</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 GreenCash. Todos os direitos reservados.</p>
+    <div class="footer-social">
+      <a href="#" class="mx-2"><i class="fab fa-instagram"></i></a>
+      <a href="#" class="mx-2"><i class="fab fa-whatsapp"></i></a>
+      <a href="#" class="mx-2"><i class="fab fa-linkedin"></i></a>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Navbar scroll styling
+    window.addEventListener('scroll', function() {
+      const nav = document.querySelector('.navbar');
+      if(window.scrollY > 30){
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+    });
+
+    // Fade in on scroll effect
+    function revealOnScroll() {
+      var reveals = document.querySelectorAll('.fade-in-up');
+      for (var i = 0; i < reveals.length; i++) {
+        var windowHeight = window.innerHeight;
+        var elementTop = reveals[i].getBoundingClientRect().top;
+        var elementVisible = 60;
+        if (elementTop < windowHeight - elementVisible) {
+          reveals[i].classList.add('visible');
+        }
+      }
+    }
+    window.addEventListener('scroll', revealOnScroll);
+    window.addEventListener('DOMContentLoaded', revealOnScroll);
+
+    // Scroll to section on nav click and update active
+    $(document).ready(function(){
+      $('.nav-link').click(function(e){
+  var target = $(this).attr('href');
+  if(target.startsWith('#')){
+    e.preventDefault();
+    $('html, body').animate({
+      scrollTop: $(target).offset().top - 60
+    }, 600);
+    $('.nav-link').removeClass('active');
+    $(this).addClass('active');
+  }
+});
+
+      // Saiba mais: scroll até a seção "saibamais"
+      $('#btnSaibaMais').click(function(){
+        $('html, body').animate({
+          scrollTop: $('#saibamais').offset().top - 60
+        }, 700);
+      });
+
+      // Botão Escolha seu plano agora
+      $('#btnEscolherPlano').on('click', function(){
+        mostrarPlanoNotificacao("Faça login para escolher um plano.");
+      });
+    });
+
+    // Notificação Clean Suporte
+    function mostrarSuporteNotificacao() {
+      const el = document.getElementById('suporteNotificacao');
+      el.classList.add('show');
+      clearTimeout(el.dataset.timer);
+      el.dataset.timer = setTimeout(() => { fecharSuporteNotificacao(); }, 5000);
+    }
+    function fecharSuporteNotificacao() {
+      const el = document.getElementById('suporteNotificacao');
+      el.classList.remove('show');
+    }
+
+    // Notificação Clean Plano
+    function mostrarPlanoNotificacao(mensagem) {
+      const el = document.getElementById('planoNotificacao');
+      if (mensagem) el.querySelector('.plano-notif-msg').innerText = mensagem;
+      el.classList.add('show');
+      clearTimeout(el.dataset.timer);
+      el.dataset.timer = setTimeout(() => { fecharPlanoNotificacao(); }, 5000);
+    }
+    function fecharPlanoNotificacao() {
+      const el = document.getElementById('planoNotificacao');
+      el.classList.remove('show');
+    }
+  </script>
+</body>
+</html>

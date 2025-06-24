@@ -98,18 +98,19 @@ CREATE TABLE IF NOT EXISTS receitas (
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Tabela de despesas financeiras
+-- Tabela de despesas financeiras (CORRIGIDA)
 CREATE TABLE IF NOT EXISTS despesas (
   id INT PRIMARY KEY AUTO_INCREMENT,
   usuario_id INT NOT NULL,
   descricao VARCHAR(255) NOT NULL,
   valor DECIMAL(10,2) NOT NULL,
   pago TINYINT DEFAULT 0,
+  origem_pagamento VARCHAR(10) DEFAULT NULL,  -- <== NOVO CAMPO
   data DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Tabela de planos financeiros/metas
+-- Tabela de planos financeiras/metas (CORRIGIDA)
 CREATE TABLE IF NOT EXISTS planos (
   id INT PRIMARY KEY AUTO_INCREMENT,
   usuario_id INT NOT NULL,
@@ -117,6 +118,7 @@ CREATE TABLE IF NOT EXISTS planos (
   valor DECIMAL(10,2) NOT NULL,
   prazo INT NOT NULL,
   realizado TINYINT DEFAULT 0,
+  origem_pagamento VARCHAR(10) DEFAULT NULL,  -- <== NOVO CAMPO
   data DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

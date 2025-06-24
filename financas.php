@@ -13,7 +13,7 @@ header("Content-Type: application/json");
 // --- PAGAR DESPESA ---
 if (($_GET["action"] ?? '') === "pagar_despesa" && $_SERVER["REQUEST_METHOD"] === "POST") {
     $id = intval($_GET["id"] ?? 0);
-    $origem = $_GET["origem"] ?? "total";
+    $origem = $_GET["origem"] ?? "total"; // 'banco' ou 'total'
     $stmt = $mysqli->prepare("UPDATE despesas SET pago=1, origem_pagamento=? WHERE id=? AND usuario_id=?");
     $stmt->bind_param("sii", $origem, $id, $usuario_id);
     $stmt->execute();

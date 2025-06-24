@@ -456,6 +456,7 @@ document.getElementById("finance-search").addEventListener("input", function() {
 </script>
 
 <script>
+
 let currentType = "";
 let itemParaExcluir = null;
 let itemParaEditar = null;
@@ -2212,19 +2213,18 @@ function carregarFinancas() {
       });
 
       // --- DESPESAS ---
-      data.despesas.forEach(d => {
-        const valor = parseFloat(d.valor);
-        let pago = d.pago == 1 ? 'text-decoration:line-through;' : '';
-        if (d.pago == 1) {
-          paidBills += 1;
-          losses += valor;
-          // ATUALIZAÇÃO: considera origem do pagamento!
-          if (d.origem_pagamento === 'banco') {
-            saldoBanco -= valor;
-          } else {
-            totalMoney -= valor;
-          }
-        }
+data.despesas.forEach(d => {
+  const valor = parseFloat(d.valor);
+  let pago = d.pago == 1 ? 'text-decoration:line-through;' : '';
+  if (d.pago == 1) {
+    paidBills += 1;
+    losses += valor;
+    if (d.origem_pagamento === 'banco') {
+      saldoBanco -= valor;
+    } else if (d.origem_pagamento === 'total' || !d.origem_pagamento) {
+      totalMoney -= valor;
+    }
+  }
 
         const div = document.createElement("div");
         div.className = "result-item despesa";
@@ -2243,18 +2243,17 @@ function carregarFinancas() {
       });
 
       // --- PLANOS ---
-      data.planos.forEach(p => {
-        const valor = parseFloat(p.valor);
-        let realizado = p.realizado == 1 ? 'text-decoration:line-through;' : '';
-        if (p.realizado == 1) {
-          losses += valor;
-          // ATUALIZAÇÃO: considera origem do pagamento!
-          if (p.origem_pagamento === 'banco') {
-            saldoBanco -= valor;
-          } else {
-            totalMoney -= valor;
-          }
-        }
+data.planos.forEach(p => {
+  const valor = parseFloat(p.valor);
+  let realizado = p.realizado == 1 ? 'text-decoration:line-through;' : '';
+  if (p.realizado == 1) {
+    losses += valor;
+    if (p.origem_pagamento === 'banco') {
+      saldoBanco -= valor;
+    } else if (p.origem_pagamento === 'total' || !p.origem_pagamento) {
+      totalMoney -= valor;
+    }
+  }
 
         const div = document.createElement("div");
         div.className = "result-item plano";
@@ -2273,9 +2272,8 @@ function carregarFinancas() {
       });
 
       // Atualiza os cards e gráficos
-      // Atualiza os cards e gráficos
-updateDashboardCards();
-atualizarGrafico(); // <- Adicione esta linha!
+      updateDashboardCards();
+atualizarGrafico();
     });
 }
 carregarFinancas();
@@ -2303,13 +2301,11 @@ function adicionarFinanca(tipo, descricao, valor, prazo = null) {
 
 // --- PAGAR DESPESA ---
 function pagarDespesa(id, valor) {
-  // O modal de pagamento deve coletar e passar a origem ('banco' ou 'total') na requisição.
-  // Exemplo: fetch(`financas.php?action=pagar_despesa&id=${id}&origem=${origem}`, { method: "POST" })
-  const origem = window.lastOrigemPagamento || 'total'; // ajuste conforme seu modal
-  fetch(`financas.php?action=pagar_despesa&id=${id}&origem=${origem}`, { method: "POST" })
+  fetch(`financas.php?action=pagar_despesa&id=${id}`, { method: "POST" })
     .then(resp => resp.json())
     .then(res => {
       if (res.success) {
+        // Atualiza os valores dos cards (evita duplicidade pois carregarFinancas já recalcula)
         carregarFinancas();
       } else {
         alert("Erro ao pagar: " + (res.msg || ""));
@@ -2319,8 +2315,7 @@ function pagarDespesa(id, valor) {
 
 // --- REALIZAR PLANO ---
 function realizarPlano(id, valor) {
-  const origem = window.lastOrigemPagamento || 'total'; // ajuste conforme seu modal
-  fetch(`financas.php?action=realizar_plano&id=${id}&origem=${origem}`, { method: "POST" })
+  fetch(`financas.php?action=realizar_plano&id=${id}`, { method: "POST" })
     .then(resp => resp.json())
     .then(res => {
       if (res.success) {
@@ -2333,6 +2328,7 @@ function realizarPlano(id, valor) {
 
 // --- EXCLUIR FINANÇA (Receita, Despesa ou Plano) ---
 function excluirFinanca(tipo, id, valor, status = 0) {
+  // status pode ser pago (despesa) ou realizado (plano), para eventual ajuste dos cards
   if (!confirm('Tem certeza que deseja excluir este item?')) return;
   fetch(`financas.php?action=excluir_${tipo}&id=${id}`, { method: "POST" })
     .then(resp => resp.json())
@@ -2345,11 +2341,21 @@ function excluirFinanca(tipo, id, valor, status = 0) {
     });
 }
 
-// --- EDITAR FINANÇA ---
+// --- EDITAR FINANÇA (Função exemplo, implemente o modal conforme seu padrão) ---
+function editarFinanca(tipo, id, valor, status = 0) {
+  // Abra seu modal de edição, recupere os dados do backend e ao salvar chame carregarFinancas()
+  // Para simplificar, não implementamos o modal aqui.
+}
+
+
+
+// Função para abrir o modal de edição
 function editarFinanca(tipo, id, valor = 0, status = 0) {
+  // Buscar dados atuais do item (idealmente via backend, mas aqui um exemplo simples)
   fetch(`financas.php?action=get_${tipo}&id=${id}`)
     .then(resp => resp.json())
     .then(item => {
+      // Monta o formulário dinâmico
       let html = `
         <label>Descrição:</label>
         <input type="text" id="edit-descricao" class="form-control mb-2" value="${item.descricao || ''}" required>
@@ -2365,6 +2371,7 @@ function editarFinanca(tipo, id, valor = 0, status = 0) {
       html += `<button class="btn btn-success mt-2" onclick="salvarEdicao('${tipo}', ${id})">Salvar</button>
                <button class="btn btn-secondary mt-2" onclick="fecharModalEdicao()">Cancelar</button>`;
 
+      // Exibe em um modal simples (pode adaptar para seu modal)
       const modal = document.createElement('div');
       modal.id = "modal-edicao";
       modal.style.position = "fixed";
@@ -2381,6 +2388,7 @@ function editarFinanca(tipo, id, valor = 0, status = 0) {
     });
 }
 
+// Função para salvar a edição
 function salvarEdicao(tipo, id) {
   const descricao = document.getElementById("edit-descricao").value;
   const valor = document.getElementById("edit-valor").value;
@@ -2389,6 +2397,7 @@ function salvarEdicao(tipo, id) {
     prazo = document.getElementById("edit-prazo").value;
   }
 
+  // Envia para o backend atualizar
   const formData = new FormData();
   formData.append("action", "editar");
   formData.append("tipo", tipo);

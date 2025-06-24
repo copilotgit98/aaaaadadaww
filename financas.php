@@ -56,19 +56,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && empty($_POST["action"])) {
   }
 
   if ($tipo === "receita") {
-    $stmt = $mysqli->prepare("INSERT INTO receitas (usuario_id, descricao, valor, data, cartao_id, cartao_numero) VALUES (?, ?, ?, NOW(), ?, ?)");
+    $stmt = $mysqli->prepare("INSERT INTO receitas (usuario_id, descricao, valor, data, cartao_id, cartao_numero, excluido) VALUES (?, ?, ?, NOW(), ?, ?, 0)");
     $stmt->bind_param("isdss", $usuario_id, $descricao, $valor, $cartao_id, $cartao_numero);
     $stmt->execute();
     echo json_encode(["success" => true, "id" => $stmt->insert_id]);
   } elseif ($tipo === "despesa") {
-    $stmt = $mysqli->prepare("INSERT INTO despesas (usuario_id, descricao, valor, data, pago, cartao_id, cartao_numero) VALUES (?, ?, ?, NOW(), 0, ?, ?)");
+    $stmt = $mysqli->prepare("INSERT INTO despesas (usuario_id, descricao, valor, data, pago, cartao_id, cartao_numero, excluido) VALUES (?, ?, ?, NOW(), 0, ?, ?, 0)");
     $stmt->bind_param("isdss", $usuario_id, $descricao, $valor, $cartao_id, $cartao_numero);
     $stmt->execute();
     echo json_encode(["success" => true, "id" => $stmt->insert_id]);
   } elseif ($tipo === "plano") {
     $prazo = intval($_POST["prazo"] ?? 0);
-    $stmt = $mysqli->prepare("INSERT INTO planos (usuario_id, descricao, valor, prazo, data, realizado, cartao_id, cartao_numero) VALUES (?, ?, ?, ?, NOW(), 0, ?, ?)");
-    // Tipos: i - usuario_id, s - descricao, d - valor, i - prazo, i - cartao_id, s - cartao_numero
+    $stmt = $mysqli->prepare("INSERT INTO planos (usuario_id, descricao, valor, prazo, data, realizado, cartao_id, cartao_numero, excluido) VALUES (?, ?, ?, ?, NOW(), 0, ?, ?, 0)");
     $stmt->bind_param("isdiis", $usuario_id, $descricao, $valor, $prazo, $cartao_id, $cartao_numero);
     $stmt->execute();
     echo json_encode(["success" => true, "id" => $stmt->insert_id]);
@@ -103,7 +102,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST["action"] ?? '') === "edita
   } elseif ($tipo === "plano") {
     $prazo = intval($_POST["prazo"] ?? 0);
     $stmt = $mysqli->prepare("UPDATE planos SET descricao=?, valor=?, prazo=?, cartao_id=?, cartao_numero=? WHERE id=? AND usuario_id=?");
-    // Tipos: s - descricao, d - valor, i - prazo, i - cartao_id, s - cartao_numero, i - id, i - usuario_id
     $stmt->bind_param("sdissii", $descricao, $valor, $prazo, $cartao_id, $cartao_numero, $id, $usuario_id);
     $stmt->execute();
     echo json_encode(["success" => true]);
@@ -113,23 +111,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST["action"] ?? '') === "edita
   exit;
 }
 
-// --- EXCLUIR ---
+// --- EXCLUIR (SOFT DELETE) ---
 if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST["action"] ?? '') === "excluir") {
   $tipo = $_POST["tipo"] ?? '';
   $id = intval($_POST["id"] ?? 0);
 
   if ($tipo === "receita") {
-    $stmt = $mysqli->prepare("DELETE FROM receitas WHERE id=? AND usuario_id=?");
+    $stmt = $mysqli->prepare("UPDATE receitas SET excluido=1 WHERE id=? AND usuario_id=?");
     $stmt->bind_param("ii", $id, $usuario_id);
     $stmt->execute();
     echo json_encode(["success" => true]);
   } elseif ($tipo === "despesa") {
-    $stmt = $mysqli->prepare("DELETE FROM despesas WHERE id=? AND usuario_id=?");
+    $stmt = $mysqli->prepare("UPDATE despesas SET excluido=1 WHERE id=? AND usuario_id=?");
     $stmt->bind_param("ii", $id, $usuario_id);
     $stmt->execute();
     echo json_encode(["success" => true]);
   } elseif ($tipo === "plano") {
-    $stmt = $mysqli->prepare("DELETE FROM planos WHERE id=? AND usuario_id=?");
+    $stmt = $mysqli->prepare("UPDATE planos SET excluido=1 WHERE id=? AND usuario_id=?");
     $stmt->bind_param("ii", $id, $usuario_id);
     $stmt->execute();
     echo json_encode(["success" => true]);
@@ -168,19 +166,37 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST["action"] ?? '') === "get")
   exit;
 }
 
-// --- LISTAGEM PADRÃO: só do cartão principal ---
-if ($_SERVER["REQUEST_METHOD"] === "GET") {
+// --- LISTAGEM PADRÃO: só do cartão principal E NÃO EXCLUÍDOS (para dashboard) ---
+if ($_SERVER["REQUEST_METHOD"] === "GET" && !isset($_GET["historico"])) {
   $cartao = get_cartao_principal($usuario_id, $mysqli);
   $cartao_id = $cartao["id"] ?? 0;
 
   $dados = [];
-  $res = $mysqli->query("SELECT id, descricao, valor FROM receitas WHERE usuario_id=$usuario_id AND cartao_id=$cartao_id ORDER BY data DESC");
+  $res = $mysqli->query("SELECT id, descricao, valor FROM receitas WHERE usuario_id=$usuario_id AND cartao_id=$cartao_id AND excluido=0 ORDER BY data DESC");
   $dados["receitas"] = [];
   while($row = $res->fetch_assoc()) $dados["receitas"][] = $row;
-  $res = $mysqli->query("SELECT id, descricao, valor, pago, origem_pagamento FROM despesas WHERE usuario_id=$usuario_id AND cartao_id=$cartao_id ORDER BY data DESC");
+  $res = $mysqli->query("SELECT id, descricao, valor, pago, origem_pagamento FROM despesas WHERE usuario_id=$usuario_id AND cartao_id=$cartao_id AND excluido=0 ORDER BY data DESC");
   $dados["despesas"] = [];
   while($row = $res->fetch_assoc()) $dados["despesas"][] = $row;
-  $res = $mysqli->query("SELECT id, descricao, valor, prazo, realizado, origem_pagamento FROM planos WHERE usuario_id=$usuario_id AND cartao_id=$cartao_id ORDER BY data DESC");
+  $res = $mysqli->query("SELECT id, descricao, valor, prazo, realizado, origem_pagamento FROM planos WHERE usuario_id=$usuario_id AND cartao_id=$cartao_id AND excluido=0 ORDER BY data DESC");
+  $dados["planos"] = [];
+  while($row = $res->fetch_assoc()) $dados["planos"][] = $row;
+  echo json_encode($dados); exit;
+}
+
+// --- LISTAGEM PARA HISTÓRICO: tudo, inclusive excluídos (para billing/histórico) ---
+if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET["historico"])) {
+  $cartao = get_cartao_principal($usuario_id, $mysqli);
+  $cartao_id = $cartao["id"] ?? 0;
+
+  $dados = [];
+  $res = $mysqli->query("SELECT id, descricao, valor, excluido FROM receitas WHERE usuario_id=$usuario_id AND cartao_id=$cartao_id ORDER BY data DESC");
+  $dados["receitas"] = [];
+  while($row = $res->fetch_assoc()) $dados["receitas"][] = $row;
+  $res = $mysqli->query("SELECT id, descricao, valor, pago, origem_pagamento, excluido FROM despesas WHERE usuario_id=$usuario_id AND cartao_id=$cartao_id ORDER BY data DESC");
+  $dados["despesas"] = [];
+  while($row = $res->fetch_assoc()) $dados["despesas"][] = $row;
+  $res = $mysqli->query("SELECT id, descricao, valor, prazo, realizado, origem_pagamento, excluido FROM planos WHERE usuario_id=$usuario_id AND cartao_id=$cartao_id ORDER BY data DESC");
   $dados["planos"] = [];
   while($row = $res->fetch_assoc()) $dados["planos"][] = $row;
   echo json_encode($dados); exit;

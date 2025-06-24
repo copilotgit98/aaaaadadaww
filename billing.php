@@ -300,6 +300,12 @@ function navActive($file) {
           <div class="card mt-4">
             <div class="card-header pb-0 p-3 d-flex justify-content-between align-items-center">
               <h6 class="mb-0">Histórico de Finanças</h6>
+              <div class="d-flex justify-content-end mb-2">
+  <button class="btn btn-danger" id="btn-excluir-historico">
+    <span class="material-symbols-rounded align-middle">delete</span>
+    Excluir Histórico
+  </button>
+</div>
             </div>
             <hr class="horizontal dark my-3">
             <div class="card-body p-3">
@@ -1054,7 +1060,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <script>
 function carregarHistoricoFinancas() {
-  fetch('financas.php')
+  fetch('financas.php?historico=1')
     .then(resp => resp.json())
     .then(data => {
       const container = document.getElementById('historico-financas');
@@ -1064,6 +1070,11 @@ function carregarHistoricoFinancas() {
       data.receitas.forEach(r => {
         const div = document.createElement('div');
         div.className = 'result-item receita';
+        if (r.excluido == 1) {
+          div.style.opacity = 0.4;
+          div.style.textDecoration = "line-through";
+          div.title = "Excluído do Gerenciar Finanças";
+        }
         div.innerHTML = `
           <div class="info">
             <i class="material-symbols-rounded icon">trending_up</i>
@@ -1077,6 +1088,11 @@ function carregarHistoricoFinancas() {
       data.despesas.forEach(d => {
         const div = document.createElement('div');
         div.className = 'result-item despesa';
+        if (d.excluido == 1) {
+          div.style.opacity = 0.4;
+          div.style.textDecoration = "line-through";
+          div.title = "Excluído do Gerenciar Finanças";
+        }
         div.innerHTML = `
           <div class="info">
             <i class="material-symbols-rounded icon">trending_down</i>
@@ -1090,6 +1106,11 @@ function carregarHistoricoFinancas() {
       data.planos.forEach(p => {
         const div = document.createElement('div');
         div.className = 'result-item plano';
+        if (p.excluido == 1) {
+          div.style.opacity = 0.4;
+          div.style.textDecoration = "line-through";
+          div.title = "Excluído do Gerenciar Finanças";
+        }
         div.innerHTML = `
           <div class="info">
             <i class="material-symbols-rounded icon">lightbulb</i>
@@ -1133,6 +1154,5 @@ document.addEventListener('DOMContentLoaded', carregarHistoricoFinancas);
 </style>
 <!-- Google Material Symbols (se não tiver no billing.php) -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" />
-
 </body>
 </html>

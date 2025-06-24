@@ -537,10 +537,7 @@ function editarCartao(id) {
 
 // Ao abrir o modal de cartão, limpa ou preenche se edição
 document.getElementById("addCardModal").addEventListener("show.bs.modal", function () {
-  if (windowIsEditingCard) {
-    document.getElementById("addCardModalLabel").textContent = "Editar Cartão";
-    // O preenchimento já é feito na função editarCartao()
-  } else {
+  if (!windowIsEditingCard) {
     document.getElementById("addCardForm").reset();
     document.getElementById("cartaoId").value = "";
     document.getElementById("addCardModalLabel").textContent = "Adicionar Novo Cartão";
@@ -575,8 +572,16 @@ document.getElementById("addCardForm").addEventListener("submit", function (e) {
         form.reset();
         form.cartaoId.value = '';
         windowIsEditingCard = false;
-        // Atualiza localStorage (garantido também em carregarCartoes, mas redundância não faz mal)
+        // Atualiza localStorage
         localStorage.setItem("greencash_has_payment_method", "true");
+        // >>>>>>> RECARREGUE O HISTÓRICO DE FINANÇAS <<<<<<<
+        if (typeof carregarHistoricoFinancas === "function") {
+          carregarHistoricoFinancas();
+        }
+        // ou se estiver na dashboard:
+        if (typeof carregarFinancas === "function") {
+          carregarFinancas();
+        }
       } else {
         alert("Erro ao salvar cartão");
       }
@@ -605,17 +610,12 @@ document.getElementById("confirmDeleteButton").addEventListener("click", functio
           .then(res => {
             if (res.sucesso) {
               carregarCartoes();
-              // Após remover, checa se ainda há cartões e atualiza localStorage!
-              fetch('cartao_actions.php', {
-                method: 'POST',
-                body: new URLSearchParams({ acao: 'listar' })
-              })
-                .then(res => res.json())
-                .then(cartoes => {
-                  if (!cartoes.length) {
-                    localStorage.removeItem("greencash_has_payment_method");
-                  }
-                });
+              // Recarrega histórico de finanças SE existir função
+              if (typeof carregarHistoricoFinancas === "function") {
+                carregarHistoricoFinancas();
+              }
+              // OU recarrega a página para garantir atualização completa:
+              // window.location.reload();
             } else {
               alert("Erro ao remover cartão");
             }

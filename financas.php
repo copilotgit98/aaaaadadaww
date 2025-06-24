@@ -10,6 +10,14 @@ if ($mysqli->connect_errno) {
 }
 header("Content-Type: application/json");
 
+function get_cartao_principal($usuario_id, $mysqli) {
+  $stmt = $mysqli->prepare("SELECT id, numero FROM cartoes WHERE usuario_id=? AND principal=1 LIMIT 1");
+  $stmt->bind_param("i", $usuario_id);
+  $stmt->execute();
+  $result = $stmt->get_result();
+  return $result->fetch_assoc();
+}
+
 // --- PAGAR DESPESA ---
 if (($_GET["action"] ?? '') === "pagar_despesa" && $_SERVER["REQUEST_METHOD"] === "POST") {
     $id = intval($_GET["id"] ?? 0);
@@ -37,20 +45,31 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && empty($_POST["action"])) {
   $tipo = $_POST["tipo"] ?? '';
   $descricao = $_POST["descricao"] ?? '';
   $valor = floatval($_POST["valor"] ?? 0);
+
+  // Pega o cartão principal e seus dados
+  $cartao = get_cartao_principal($usuario_id, $mysqli);
+  $cartao_id = $cartao['id'] ?? null;
+  $cartao_numero = isset($cartao['numero']) ? substr($cartao['numero'], -4) : null;
+
+  if (!$cartao_id) {
+    http_response_code(400); echo json_encode(["success" => false, "msg" => "Cadastre um cartão antes."]); exit;
+  }
+
   if ($tipo === "receita") {
-    $stmt = $mysqli->prepare("INSERT INTO receitas (usuario_id, descricao, valor) VALUES (?, ?, ?)");
-    $stmt->bind_param("isd", $usuario_id, $descricao, $valor);
+    $stmt = $mysqli->prepare("INSERT INTO receitas (usuario_id, descricao, valor, data, cartao_id, cartao_numero) VALUES (?, ?, ?, NOW(), ?, ?)");
+    $stmt->bind_param("isdss", $usuario_id, $descricao, $valor, $cartao_id, $cartao_numero);
     $stmt->execute();
     echo json_encode(["success" => true, "id" => $stmt->insert_id]);
   } elseif ($tipo === "despesa") {
-    $stmt = $mysqli->prepare("INSERT INTO despesas (usuario_id, descricao, valor) VALUES (?, ?, ?)");
-    $stmt->bind_param("isd", $usuario_id, $descricao, $valor);
+    $stmt = $mysqli->prepare("INSERT INTO despesas (usuario_id, descricao, valor, data, pago, cartao_id, cartao_numero) VALUES (?, ?, ?, NOW(), 0, ?, ?)");
+    $stmt->bind_param("isdss", $usuario_id, $descricao, $valor, $cartao_id, $cartao_numero);
     $stmt->execute();
     echo json_encode(["success" => true, "id" => $stmt->insert_id]);
   } elseif ($tipo === "plano") {
     $prazo = intval($_POST["prazo"] ?? 0);
-    $stmt = $mysqli->prepare("INSERT INTO planos (usuario_id, descricao, valor, prazo) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("isdi", $usuario_id, $descricao, $valor, $prazo);
+    $stmt = $mysqli->prepare("INSERT INTO planos (usuario_id, descricao, valor, prazo, data, realizado, cartao_id, cartao_numero) VALUES (?, ?, ?, ?, NOW(), 0, ?, ?)");
+    // Tipos: i - usuario_id, s - descricao, d - valor, i - prazo, i - cartao_id, s - cartao_numero
+    $stmt->bind_param("isdiis", $usuario_id, $descricao, $valor, $prazo, $cartao_id, $cartao_numero);
     $stmt->execute();
     echo json_encode(["success" => true, "id" => $stmt->insert_id]);
   } else {
@@ -66,20 +85,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST["action"] ?? '') === "edita
   $descricao = $_POST["descricao"] ?? '';
   $valor = floatval($_POST["valor"] ?? 0);
 
+  // Pega o cartão principal e seus dados
+  $cartao = get_cartao_principal($usuario_id, $mysqli);
+  $cartao_id = $cartao['id'] ?? null;
+  $cartao_numero = isset($cartao['numero']) ? substr($cartao['numero'], -4) : null;
+
   if ($tipo === "receita") {
-    $stmt = $mysqli->prepare("UPDATE receitas SET descricao=?, valor=? WHERE id=? AND usuario_id=?");
-    $stmt->bind_param("sdii", $descricao, $valor, $id, $usuario_id);
+    $stmt = $mysqli->prepare("UPDATE receitas SET descricao=?, valor=?, cartao_id=?, cartao_numero=? WHERE id=? AND usuario_id=?");
+    $stmt->bind_param("sdissi", $descricao, $valor, $cartao_id, $cartao_numero, $id, $usuario_id);
     $stmt->execute();
     echo json_encode(["success" => true]);
   } elseif ($tipo === "despesa") {
-    $stmt = $mysqli->prepare("UPDATE despesas SET descricao=?, valor=? WHERE id=? AND usuario_id=?");
-    $stmt->bind_param("sdii", $descricao, $valor, $id, $usuario_id);
+    $stmt = $mysqli->prepare("UPDATE despesas SET descricao=?, valor=?, cartao_id=?, cartao_numero=? WHERE id=? AND usuario_id=?");
+    $stmt->bind_param("sdissi", $descricao, $valor, $cartao_id, $cartao_numero, $id, $usuario_id);
     $stmt->execute();
     echo json_encode(["success" => true]);
   } elseif ($tipo === "plano") {
     $prazo = intval($_POST["prazo"] ?? 0);
-    $stmt = $mysqli->prepare("UPDATE planos SET descricao=?, valor=?, prazo=? WHERE id=? AND usuario_id=?");
-    $stmt->bind_param("sdiii", $descricao, $valor, $prazo, $id, $usuario_id);
+    $stmt = $mysqli->prepare("UPDATE planos SET descricao=?, valor=?, prazo=?, cartao_id=?, cartao_numero=? WHERE id=? AND usuario_id=?");
+    // Tipos: s - descricao, d - valor, i - prazo, i - cartao_id, s - cartao_numero, i - id, i - usuario_id
+    $stmt->bind_param("sdissii", $descricao, $valor, $prazo, $cartao_id, $cartao_numero, $id, $usuario_id);
     $stmt->execute();
     echo json_encode(["success" => true]);
   } else {
@@ -143,16 +168,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST["action"] ?? '') === "get")
   exit;
 }
 
-// --- LISTAGEM PADRÃO ---
+// --- LISTAGEM PADRÃO: só do cartão principal ---
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
+  $cartao = get_cartao_principal($usuario_id, $mysqli);
+  $cartao_id = $cartao["id"] ?? 0;
+
   $dados = [];
-  $res = $mysqli->query("SELECT id, descricao, valor FROM receitas WHERE usuario_id=$usuario_id ORDER BY data DESC");
+  $res = $mysqli->query("SELECT id, descricao, valor FROM receitas WHERE usuario_id=$usuario_id AND cartao_id=$cartao_id ORDER BY data DESC");
   $dados["receitas"] = [];
   while($row = $res->fetch_assoc()) $dados["receitas"][] = $row;
-  $res = $mysqli->query("SELECT id, descricao, valor, pago, origem_pagamento FROM despesas WHERE usuario_id=$usuario_id ORDER BY data DESC");
+  $res = $mysqli->query("SELECT id, descricao, valor, pago, origem_pagamento FROM despesas WHERE usuario_id=$usuario_id AND cartao_id=$cartao_id ORDER BY data DESC");
   $dados["despesas"] = [];
   while($row = $res->fetch_assoc()) $dados["despesas"][] = $row;
-  $res = $mysqli->query("SELECT id, descricao, valor, prazo, realizado, origem_pagamento FROM planos WHERE usuario_id=$usuario_id ORDER BY data DESC");
+  $res = $mysqli->query("SELECT id, descricao, valor, prazo, realizado, origem_pagamento FROM planos WHERE usuario_id=$usuario_id AND cartao_id=$cartao_id ORDER BY data DESC");
   $dados["planos"] = [];
   while($row = $res->fetch_assoc()) $dados["planos"][] = $row;
   echo json_encode($dados); exit;

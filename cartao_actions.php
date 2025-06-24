@@ -20,6 +20,7 @@ $acao = $_POST['acao'] ?? '';
 if ($acao === 'adicionar' || $acao === 'editar') {
     $id = $_POST['id'] ?? null;
     $numero = $_POST['numero'] ?? '';
+    $numero_mascarado = substr($numero, -4); // Apenas os 4 últimos dígitos para associar
     $titular = $_POST['titular'] ?? '';
     $validade = $_POST['validade'] ?? '';
     $cvv = $_POST['cvv'] ?? '';
@@ -37,12 +38,23 @@ if ($acao === 'adicionar' || $acao === 'editar') {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $ok = $stmt->execute([$usuario_id, $numero, $titular, $validade, $cvv, $salario, $limite, $tipo, $principal]);
         $id = $pdo->lastInsertId();
+
+        // Reassocia finanças pelo número do cartão (últimos 4 dígitos)
+        foreach (['receitas', 'despesas', 'planos'] as $tabela) {
+            $pdo->prepare(
+                "UPDATE $tabela SET cartao_id=?, cartao_numero=?
+                 WHERE usuario_id=? AND cartao_numero=?"
+            )->execute([$id, $numero_mascarado, $usuario_id, $numero_mascarado]);
+        }
     } else {
         $stmt = $pdo->prepare("UPDATE cartoes SET numero=?, titular=?, validade=?, cvv=?, salario=?, limite=?, tipo=?, principal=?
             WHERE id=? AND usuario_id=?");
         $ok = $stmt->execute([$numero, $titular, $validade, $cvv, $salario, $limite, $tipo, $principal, $id, $usuario_id]);
     }
     echo json_encode(["sucesso" => $ok, "id" => $id]);
+
+    // Força atualização instantânea nas telas, se possível (via header extra, pode ser lido via JS)
+    header("X-Greencash-Update: 1");
     exit;
 }
 
@@ -55,9 +67,16 @@ if ($acao === 'listar') {
 
 if ($acao === 'remover') {
     $id = $_POST['id'] ?? null;
+    // Ao remover cartão, as finanças associadas ficam sem cartao_id
+    foreach (['receitas', 'despesas', 'planos'] as $tabela) {
+        $pdo->prepare("UPDATE $tabela SET cartao_id=NULL WHERE usuario_id=? AND cartao_id=?")->execute([$usuario_id, $id]);
+    }
     $stmt = $pdo->prepare("DELETE FROM cartoes WHERE id=? AND usuario_id=?");
     $ok = $stmt->execute([$id, $usuario_id]);
     echo json_encode(["sucesso" => $ok]);
+
+    // Força atualização instantânea nas telas, se possível (via header extra, pode ser lido via JS)
+    header("X-Greencash-Update: 1");
     exit;
 }
 
@@ -69,7 +88,6 @@ if ($acao === 'principal') {
     exit;
 }
 
-// Resposta padrão para ações inválidas
 echo json_encode(["erro" => "Ação inválida"]);
 exit;
 ?>

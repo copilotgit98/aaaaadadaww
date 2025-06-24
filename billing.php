@@ -301,10 +301,10 @@ function navActive($file) {
             <div class="card-header pb-0 p-3 d-flex justify-content-between align-items-center">
               <h6 class="mb-0">Histórico de Finanças</h6>
               <div class="d-flex justify-content-end mb-2">
-  <button class="btn btn-danger" id="btn-excluir-historico">
-    <span class="material-symbols-rounded align-middle">delete</span>
-    Excluir Histórico
-  </button>
+              <button class="btn btn-danger" id="btn-excluir-historico">
+  <span class="material-symbols-rounded align-middle">delete</span>
+  Excluir Histórico
+</button>
 </div>
             </div>
             <hr class="horizontal dark my-3">
@@ -1154,5 +1154,24 @@ document.addEventListener('DOMContentLoaded', carregarHistoricoFinancas);
 </style>
 <!-- Google Material Symbols (se não tiver no billing.php) -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" />
+
+<!-- Modal de Confirmação de Exclusão de Histórico -->
+<div class="modal fade" id="modalExcluirHistorico" tabindex="-1" aria-labelledby="modalExcluirHistoricoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="modalExcluirHistoricoLabel">Excluir Histórico</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        Tem certeza que deseja excluir todo o histórico de finanças? Esta ação não poderá ser desfeita.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" id="btnConfirmarExcluirHistorico" class="btn btn-danger">Excluir</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

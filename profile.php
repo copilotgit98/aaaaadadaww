@@ -542,22 +542,7 @@ function renderProfile() {
                 <textarea class="form-control custom-input" id="settings-profile-bio" rows="2" maxlength="120" placeholder="Conte um pouco sobre você..."></textarea>
               </div>
               <!-- ...outros campos do formulário... -->
-               
-
-              <div class="row mt-4">
-                <div class="col-12">
-                  <label class="form-label mb-1">Senha atual</label>
-                  <input type="password" id="settings-current-password" class="form-control custom-input" autocomplete="off" maxlength="48" placeholder="Digite sua senha atual">
-                </div>
-                <div class="col-12 mt-2">
-                  <label class="form-label mb-1">Nova senha</label>
-                  <input type="password" id="settings-new-password" class="form-control custom-input" autocomplete="off" maxlength="48" placeholder="Digite a nova senha">
-                </div>
-                <div class="col-12 mt-2">
-                  <label class="form-label mb-1">Confirmar nova senha</label>
-                  <input type="password" id="settings-confirm-password" class="form-control custom-input" autocomplete="off" maxlength="48" placeholder="Confirme a nova senha">
-                </div>
-            </div>
+              
             </div>
           </section>
         </div>

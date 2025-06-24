@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
   nome VARCHAR(100) NOT NULL,
   tipo TINYINT(1) NOT NULL DEFAULT 0,             -- 0=usuário, 1=admin
   telefone VARCHAR(20) DEFAULT NULL,
+  localizacao VARCHAR(100) DEFAULT NULL,
   bio VARCHAR(255) DEFAULT NULL,
   foto VARCHAR(255) DEFAULT NULL,
   plano VARCHAR(30) DEFAULT NULL,

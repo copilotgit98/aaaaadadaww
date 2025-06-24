@@ -305,9 +305,9 @@ function navActive($file) {
             <div class="card-body p-3">
               <div class="table-responsive">
                 <table class="table align-items-center mb-0">
-                  <tbody id="financeList">
-                    <!-- Lançamentos financeiros aparecem aqui via JS -->
-                  </tbody>
+                <div class="card-body p-3">
+  <div id="historico-financas"></div>
+</div>
                 </table>
               </div>
             </div>
@@ -1048,5 +1048,88 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
+
+<script>
+function carregarHistoricoFinancas() {
+  fetch('financas.php')
+    .then(resp => resp.json())
+    .then(data => {
+      const container = document.getElementById('historico-financas');
+      container.innerHTML = '';
+
+      // RECEITAS
+      data.receitas.forEach(r => {
+        const div = document.createElement('div');
+        div.className = 'result-item receita';
+        div.innerHTML = `
+          <div class="info">
+            <i class="material-symbols-rounded icon">trending_up</i>
+            Receita: ${r.descricao} - R$${parseFloat(r.valor).toFixed(2)}
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      // DESPESAS
+      data.despesas.forEach(d => {
+        const div = document.createElement('div');
+        div.className = 'result-item despesa';
+        div.innerHTML = `
+          <div class="info">
+            <i class="material-symbols-rounded icon">trending_down</i>
+            Despesa: ${d.descricao} - R$${parseFloat(d.valor).toFixed(2)}
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      // PLANOS
+      data.planos.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'result-item plano';
+        div.innerHTML = `
+          <div class="info">
+            <i class="material-symbols-rounded icon">lightbulb</i>
+            Plano: ${p.descricao} - R$${parseFloat(p.valor).toFixed(2)} - ${p.prazo} meses
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', carregarHistoricoFinancas);
+</script>
+
+<style>
+.result-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 18px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  color: white;
+  font-size: 1.07em;
+}
+.result-item.receita { background: #28a745; }
+.result-item.despesa { background: #dc3545; }
+.result-item.plano { background: #007bff; }
+.result-item .icon {
+  font-family: 'Material Symbols Rounded';
+  font-size: 2rem;
+  margin-right: 15px;
+  color: #fff !important;
+}
+.result-item .info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+</style>
+<!-- Google Material Symbols (se não tiver no billing.php) -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" />
+
 </body>
 </html>
